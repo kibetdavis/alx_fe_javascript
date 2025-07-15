@@ -4,34 +4,25 @@ let quotes = JSON.parse(localStorage.getItem("quotes")) || [
   { text: "Stay hungry, stay foolish.", category: "Inspiration" }
 ];
 
-// Save to localStorage
 function saveQuotes() {
   localStorage.setItem("quotes", JSON.stringify(quotes));
 }
 
-// Save selected category filter
 function saveSelectedCategory(category) {
   localStorage.setItem("selectedCategory", category);
 }
 
-// Populate dropdown with unique categories
 function populateCategories() {
   const categoryFilter = document.getElementById("categoryFilter");
   const categories = [...new Set(quotes.map(q => q.category))];
-
-  // Clear previous options except 'all'
   categoryFilter.innerHTML = '<option value="all">All Categories</option>';
-
   categories.forEach(category => {
     const option = document.createElement("option");
     option.value = category;
     option.textContent = category;
     categoryFilter.appendChild(option);
-  }
+  });
 
-  );
-
-  // Restore selected category from localStorage
   const savedCategory = localStorage.getItem("selectedCategory");
   if (savedCategory) {
     categoryFilter.value = savedCategory;
@@ -39,7 +30,6 @@ function populateCategories() {
   }
 }
 
-// Display one random quote (optionally filtered)
 function showRandomQuote() {
   const quoteDisplay = document.getElementById("quoteDisplay");
   const selectedCategory = document.getElementById("categoryFilter").value;
@@ -55,17 +45,14 @@ function showRandomQuote() {
   const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
   const quote = filteredQuotes[randomIndex];
   quoteDisplay.innerHTML = `<p>"${quote.text}"</p><small>- ${quote.category}</small>`;
-
   sessionStorage.setItem("lastQuote", JSON.stringify(quote));
 }
 
-// Show quotes based on selected category
 function filterQuotes() {
   saveSelectedCategory(document.getElementById("categoryFilter").value);
   showRandomQuote();
 }
 
-// Add quote via input
 function addQuote() {
   const text = document.getElementById("newQuoteText").value.trim();
   const category = document.getElementById("newQuoteCategory").value.trim();
@@ -80,7 +67,6 @@ function addQuote() {
   }
 }
 
-// Create input form for new quotes
 function createAddQuoteForm() {
   const formDiv = document.createElement("div");
 
@@ -103,7 +89,6 @@ function createAddQuoteForm() {
   document.body.appendChild(formDiv);
 }
 
-// Export JSON
 function exportToJsonFile() {
   const dataStr = JSON.stringify(quotes, null, 2);
   const blob = new Blob([dataStr], { type: "application/json" });
@@ -118,7 +103,6 @@ function exportToJsonFile() {
   URL.revokeObjectURL(url);
 }
 
-// Import JSON
 function importFromJsonFile(event) {
   const fileReader = new FileReader();
   fileReader.onload = function (event) {
@@ -140,11 +124,47 @@ function importFromJsonFile(event) {
   fileReader.readAsText(event.target.files[0]);
 }
 
-// Event Listeners
+// ---------- ✅ Simulated Server Sync ----------
+function syncWithServer() {
+  fetch("https://jsonplaceholder.typicode.com/posts")
+    .then(response => response.json())
+    .then(serverData => {
+      const serverQuotes = serverData.slice(0, 5).map(post => ({
+        text: post.title,
+        category: "Server"
+      }));
+
+      // Server wins: overwrite local quotes
+      quotes = serverQuotes;
+      saveQuotes();
+      populateCategories();
+      showRandomQuote();
+
+      notifyUser("Quotes synced with server. Local data overridden.");
+    })
+    .catch(error => {
+      console.error("Server sync failed:", error);
+    });
+}
+
+// Show sync notification
+function notifyUser(message) {
+  const msg = document.createElement("div");
+  msg.textContent = message;
+  msg.style.background = "#ffdd57";
+  msg.style.padding = "10px";
+  msg.style.marginTop = "10px";
+  document.body.insertBefore(msg, document.body.firstChild);
+  setTimeout(() => msg.remove(), 4000);
+}
+
+// ---------- ✅ Init ----------
 document.getElementById("newQuote").addEventListener("click", showRandomQuote);
 document.getElementById("exportBtn").addEventListener("click", exportToJsonFile);
 
-// Init
 createAddQuoteForm();
 populateCategories();
 showRandomQuote();
+
+// 🔁 Periodic sync every 20 seconds
+setInterval(syncWithServer, 20000);
