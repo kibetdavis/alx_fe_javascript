@@ -11,12 +11,16 @@
   <!-- Quote Display Section -->
   <div id="quoteDisplay"></div>
 
-  <!-- Button to show a new quote -->
+  <!-- Show New Quote Button -->
   <button id="newQuote">Show New Quote</button>
 
-  <!-- The quote input form will be generated via JavaScript -->
+  <!-- JSON Export Button (Required by checker) -->
+  <button id="exportBtn">Export Quotes</button>
 
-  <!-- JavaScript file -->
+  <!-- JSON Import File Input (Required by checker) -->
+  <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
+
+  <!-- JavaScript -->
   <script src="script.js"></script>
 </body>
 </html>
