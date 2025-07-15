@@ -104,26 +104,15 @@ function importFromJsonFile(event) {
   fileReader.readAsText(event.target.files[0]);
 }
 
-async function fetchQuotesFromServer() {
-  try {
-    const response = await fetch("https://jsonplaceholder.typicode.com/posts");
-    const serverData = await response.json();
-
-    const serverQuotes = serverData.slice(0, 5).map(post => ({
-      text: post.title,
-      category: "Server"
-    }));
-
-    quotes = serverQuotes;
-    saveQuotes();
-    populateCategories();
-    showRandomQuote();
-    notifyUser("Quotes synced with server. Local data overridden.");
-  } catch (error) {
-    console.error("Server sync failed:", error);
+// ✅ Sync all local quotes to the server (example POST)
+async function syncQuotes() {
+  for (const quote of quotes) {
+    await syncQuoteToServer(quote);
   }
+  notifyUser("All quotes synced with the server.");
 }
 
+// ✅ Sync a single quote
 async function syncQuoteToServer(quote) {
   try {
     const response = await fetch("https://jsonplaceholder.typicode.com/posts", {
@@ -149,6 +138,28 @@ async function syncQuoteToServer(quote) {
   }
 }
 
+// ✅ Periodically fetch quotes from the server
+async function fetchQuotesFromServer() {
+  try {
+    const response = await fetch("https://jsonplaceholder.typicode.com/posts");
+    const serverData = await response.json();
+
+    const serverQuotes = serverData.slice(0, 5).map(post => ({
+      text: post.title,
+      category: "Server"
+    }));
+
+    quotes = serverQuotes;
+    saveQuotes();
+    populateCategories();
+    showRandomQuote();
+    notifyUser("Quotes synced with server. Local data overridden.");
+  } catch (error) {
+    console.error("Server sync failed:", error);
+  }
+}
+
+// ✅ Show user a sync notification
 function notifyUser(message) {
   const msg = document.createElement("div");
   msg.textContent = message;
@@ -160,9 +171,11 @@ function notifyUser(message) {
   setTimeout(() => msg.remove(), 4000);
 }
 
+// ✅ Event listeners
 document.getElementById("newQuote").addEventListener("click", showRandomQuote);
 document.getElementById("exportBtn").addEventListener("click", exportToJsonFile);
 
+// ✅ Initial setup
 populateCategories();
 showRandomQuote();
-setInterval(fetchQuotesFromServer, 30000);
+setInterval(fetchQuotesFromServer, 30000);  // Every 30 seconds
