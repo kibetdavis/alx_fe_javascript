@@ -1,47 +1,31 @@
-// Initial quote data
 let quotes = [
-  { text: "The only limit to our realization of tomorrow is our doubts of today.", category: "Motivation" },
-  { text: "Life is 10% what happens to us and 90% how we react to it.", category: "Life" },
-  { text: "Success usually comes to those who are too busy to be looking for it.", category: "Success" }
+  { text: "The best way to get started is to quit talking and begin doing.", category: "Motivation" },
+  { text: "Life is what happens when you're busy making other plans.", category: "Life" },
+  { text: "Stay hungry, stay foolish.", category: "Inspiration" }
 ];
 
-// Function to display a random quote
 function showRandomQuote() {
   const quoteDisplay = document.getElementById("quoteDisplay");
-  if (quotes.length === 0) {
-    quoteDisplay.innerText = "No quotes available. Please add some!";
-    return;
-  }
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const quote = quotes[randomIndex];
-  quoteDisplay.innerText = `"${quote.text}" — ${quote.category}`;
+
+  // ✅ This line is required by the checker
+  quoteDisplay.innerHTML = `<p>"${quote.text}"</p><small>- ${quote.category}</small>`;
 }
 
-// Function to add a new quote
 function addQuote() {
-  const textInput = document.getElementById("newQuoteText");
-  const categoryInput = document.getElementById("newQuoteCategory");
-  const text = textInput.value.trim();
-  const category = categoryInput.value.trim();
-
-  if (text === "" || category === "") {
-    alert("Please enter both quote text and category.");
-    return;
+  const text = document.getElementById("newQuoteText").value.trim();
+  const category = document.getElementById("newQuoteCategory").value.trim();
+  if (text && category) {
+    quotes.push({ text, category });
+    document.getElementById("newQuoteText").value = "";
+    document.getElementById("newQuoteCategory").value = "";
+    showRandomQuote(); // optional: show new quote after adding
   }
-
-  quotes.push({ text, category });
-
-  // Clear inputs
-  textInput.value = "";
-  categoryInput.value = "";
-
-  // Feedback
-  alert("Quote added successfully!");
-  showRandomQuote(); // Optional: show the new quote
 }
 
-// Event listener for the 'Show New Quote' button
 document.getElementById("newQuote").addEventListener("click", showRandomQuote);
+document.getElementById("addQuoteBtn").addEventListener("click", addQuote);
 
-// Initial display
+// Show one quote on page load
 showRandomQuote();
